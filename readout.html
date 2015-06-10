@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>listen now!</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; top: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: silver; border: none; padding: 10px; }
+	  .messages{margin-top:50px}
+    </style>
+  </head>
+  <body>
+    <form action="">
+      <input id="m" autocomplete="on" /><button>Send</button>
+    </form>    
+	<div id="messages" class="messages"></div>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+	function ab2str(buf) {
+	  str = String.fromCharCode.apply(null, new Uint8Array(buf));
+	  str = str.replace(/\n/g, '<br>');
+	  
+	  return str
+	}
+	
+	$.get( "read/", function( data ) {
+	  $( "#messages").html(data.replace(/\n/g,'<br>') );
+	});
+	
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('input', $('#m').val());
+		console.log($('#m').val())
+        $('#m').val('');
+        return false;
+      });
+      socket.on('data', function(msg){
+        $('#messages').append(ab2str(msg));
+	    $("body").animate({ scrollTop: $("body").height() }, "slow");
+	});
+    </script>
+  </body>
+</html>

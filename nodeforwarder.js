@@ -60,9 +60,13 @@ for (var i=0; i<3; i++ )
 
 //On Data fill a circular buf of the specified length
 buf = ""
+
+//last heard
+var lh = 0;
 serialPort.on('data', function(data) {
 	//console.log(data);
    buf += data	   
+   lh = new Date().getTime()
    if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
    io.emit('data', data);
    
@@ -85,6 +89,14 @@ app.get('/writecf/*',function(req,res){
 	serialPort.write(toSend+"\r\n")
 	res.send(toSend)
 });
+
+//Show Last Updated
+app.get('/lastread/',function(req,res){	
+	console.log(lh)
+	res.send(lh)
+});
+
+
 
 //read buffer
 app.get('/read/', function(req, res){

@@ -4,6 +4,8 @@ requirements
    -- serialport -> npm install serialport
    -- express -> npm install express
    -- sleep -> npm install sleep
+   -- socket.io -> npm install socket.io
+   -- cors -> npm install cors
 
 to start: node nodeforwader.js [HTTP PORT] [SERIAL PORT] [BAUD] [BUFFER LENGTH]
 to read: http://[yourip]:[spec'd port]/read/  -> returns the last [BUFFER LENGTH] bytes from the serial port as a string
@@ -35,6 +37,7 @@ else
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var cors = require('cors')
 http.listen(hp);
 
 var sleep = require("sleep").sleep
@@ -73,6 +76,7 @@ serialPort.on('data', function(data) {
 });
 
 //Write to serial port
+app.use(cors())
 app.get('/write/*',function(req,res){	
 	toSend = req.originalUrl.replace("/write/","")
 	toSend = decodeURIComponent(toSend);

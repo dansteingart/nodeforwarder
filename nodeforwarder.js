@@ -96,8 +96,9 @@ app.get('/writecf/*',function(req,res){
 
 //Show Last Updated
 app.get('/lastread/',function(req,res){	
-	console.log(lh)
-	res.send(lh)
+	lhs = lh.toString();
+	console.log(lhs)
+	res.send(lhs)
 });
 
 

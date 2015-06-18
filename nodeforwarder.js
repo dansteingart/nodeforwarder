@@ -31,7 +31,7 @@ else
 	hp = parts[2]
 	sp = parts[3]
 	baud = parseInt(parts[4])
-	blen = 10000
+	blen = parseInt(parts[5])
 }
 
 var app = require('express')();

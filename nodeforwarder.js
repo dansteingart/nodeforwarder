@@ -108,6 +108,10 @@ app.get('/read/', function(req, res){
 	res.send(buf)
 });
 
+app.get('/', function(req, res){
+	//console.log(buf)
+    res.sendFile(__dirname + '/readout.html');
+});
 
 app.get('/readout/', function(req, res){
 	//console.log(buf)

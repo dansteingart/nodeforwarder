@@ -100,7 +100,8 @@ There is a quick debugging interface at `http://localhost:9000/`
  - expects a JSON format with a 'payload' key, something like `{"payload":"take over world"}`, and sends the value (e.g. "take over world") to the serial port
  
 ```bash  
-curl -s -H 'Content-Type: application/json' -X POST -d '{"payload":"value"}' http://HOST:PORT/write/
+curl -s -H 'Content-Type: application/json' -X POST -d '{"payload":"value"}' \ 
+http://HOST:PORT/write/
 ```
 
 
@@ -122,9 +123,8 @@ def writecf(str):
 def read():
     return uo(site+"read/").read()
 
-'''your code here'''
+##your code here
 ```
-`
 
 ##Yes
 This is [not the first](http://tinyos.stanford.edu/tinyos-wiki/index.php/Mote-PC_serial_communication_and_SerialForwarder_(TOS_2.1.1_and_later)) and it is not the last, but it's mine and it's the only curl baed system that _I_ know of.  So please use it and enjoy it and don't tell me it's not original.  I know it's not, but it works.

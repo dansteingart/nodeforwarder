@@ -33,6 +33,7 @@ These come with the repo, but just in case
 - sleep -> `npm install sleep`
 - socket.io -> `npm install socket.io`
 - cors -> `npm install cors`
+- body-parser -> `npm install body-parser`
 
 ##Quick Run
 In the directory where you placed the files run

@@ -83,6 +83,27 @@ To read what comes back, type
 
 There is a quick debugging interface at `http://localhost:9000/`
 
+
+##Get URLS
+
+- /write/PAYLOAD
+  - Writes PAYLOAD to the serialport.  Tries hard to handle what it can, but it's just a url so....
+- /writecf/PAYLOAD
+  - Writes PAYLOAD with an appended '\r\n' to the serial port
+- /read/
+  - returns the current _entire_ buffer from the serial port.  You'll want to parse it out 
+- /lastreading
+  - returns the last time the nodeforwarder received data from the serialport, in unixtime (ms).
+
+##Post URLS
+- /write/
+ - expects a JSON format with a 'payload' key, something like `{"payload":"take over world"}`, and sends the value (e.g. "take over world") to the serial port
+ 
+```bash  
+curl -s -H 'Content-Type: application/json' -X POST -d '{"payload":"value"}' http://HOST:PORT/write/
+```
+
+
 ##Use in a scripting langauge
 
 Now that the forwarder is set up and you know it's working per above, you can use it in whatever language you want so long as that language can deal with opening and reading from URLs (they _all_ can).  In python this looks like
@@ -101,8 +122,7 @@ def writecf(str):
 def read():
     return uo(site+"read/").read()
 
-## Your code here.  You'll probably want to write a parser for the return on read
-
+'''your code here'''
 ```
 `
 

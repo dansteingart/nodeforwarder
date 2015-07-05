@@ -105,10 +105,10 @@ app.post('/write',function(req,res){
 	x = req.body
 	toSend = x
 	console.log(toSend)
+	
 	serialPort.write(toSend['payload'])
 	res.send(toSend)
 });
-
 
 
 //Show Last Updated
@@ -119,23 +119,23 @@ app.get('/lastread/',function(req,res){
 });
 
 
-
 //read buffer
 app.get('/read/', function(req, res){
 	res.send(buf)
 });
 
+
+//weak interface
 app.get('/', function(req, res){
-	//console.log(buf)
     res.sendFile(__dirname + '/readout.html');
 });
 
 
 app.get('/readout/', function(req, res){
-	//console.log(buf)
     res.sendFile(__dirname + '/readout.html');
 });
 
+//sockets
 io.on('connection', function(socket){
   io.emit('data',buf)
   socket.on('input', function(msg){

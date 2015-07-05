@@ -34,7 +34,9 @@ else
 	blen = parseInt(parts[5])
 }
 
+var bodyParser = require('body-parser');
 var app = require('express')();
+
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var cors = require('cors')
@@ -75,8 +77,14 @@ serialPort.on('data', function(data) {
    
 });
 
-//Write to serial port
+//Enable Cross Site Scripting
 app.use(cors())
+
+//Allows us to rip out data?
+app.use(bodyParser());
+
+
+//Write to serial port
 app.get('/write/*',function(req,res){	
 	toSend = req.originalUrl.replace("/write/","")
 	toSend = decodeURIComponent(toSend);
@@ -85,7 +93,6 @@ app.get('/write/*',function(req,res){
 	res.send(toSend)
 });
 
-//Write to serial port
 app.get('/writecf/*',function(req,res){	
 	toSend = req.originalUrl.replace("/writecf/","")
 	toSend = decodeURIComponent(toSend);
@@ -93,6 +100,16 @@ app.get('/writecf/*',function(req,res){
 	serialPort.write(toSend+"\r\n")
 	res.send(toSend)
 });
+
+app.post('/write',function(req,res){	
+	x = req.body
+	toSend = x
+	console.log(toSend)
+	serialPort.write(toSend['payload'])
+	res.send(toSend)
+});
+
+
 
 //Show Last Updated
 app.get('/lastread/',function(req,res){	
@@ -112,6 +129,7 @@ app.get('/', function(req, res){
 	//console.log(buf)
     res.sendFile(__dirname + '/readout.html');
 });
+
 
 app.get('/readout/', function(req, res){
 	//console.log(buf)

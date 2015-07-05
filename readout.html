@@ -40,7 +40,7 @@
       });
       socket.on('data', function(msg){
         $('#messages').append(ab2str(msg));
-	    $("body").animate({ scrollTop: $("body").height() }, "slow");
+	    $("body").animate({ scrollTop: $("body").height() }, "fast");
 	});
     </script>
   </body>

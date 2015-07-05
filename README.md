@@ -81,7 +81,7 @@ To read what comes back, type
 
 `http://localhost:9000/read/` and the current buffer contents will display in the browser.
 
-There is a quick debugging interface at `http://localhost:9000/readout`
+There is a quick debugging interface at `http://localhost:9000/`
 
 ##Use in a scripting langauge
 

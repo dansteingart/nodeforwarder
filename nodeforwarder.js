@@ -34,6 +34,7 @@ else
 	blen = parseInt(parts[5])
 }
 
+var logfile = false;
 if (parts.length == 7) logfile = true;
 
 var bodyParser = require('body-parser');
@@ -43,6 +44,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var cors = require('cors')
 http.listen(hp);
+
 
 var sleep = require("sleep").sleep
 var SerialPort = require("serialport").SerialPort ;
@@ -72,7 +74,10 @@ buf = ""
 var lh = 0;
 serialPort.on('data', function(data) {
    
-   if (logfile) console.log(data);
+   if (logfile) 
+   {
+       console.log(data.toString('utf8')); 
+   }
   
    buf += data	   
    lh = new Date().getTime()

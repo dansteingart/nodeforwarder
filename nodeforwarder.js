@@ -21,7 +21,7 @@ parts = process.argv
 
 if (parts.length < 6)
 {
-	console.log("usage: node nodeforwader.js [HTTP PORT] [SERIAL PORT] [BAUD] [BUFFER LENGTH] [LOG FILENAME optional]")
+	console.log("usage: node nodeforwader.js [HTTP PORT] [SERIAL PORT] [BAUD] [BUFFER LENGTH] [LOG=YES optional]")
 	process.exit(1);
 }
 
@@ -34,7 +34,7 @@ else
 	blen = parseInt(parts[5])
 }
 
-if (parts.length == 7) logfile = parts[6];
+if (parts.length == 7) logfile = true;
 
 var bodyParser = require('body-parser');
 var app = require('express')();
@@ -71,15 +71,9 @@ buf = ""
 //last heard
 var lh = 0;
 serialPort.on('data', function(data) {
-	//console.log(data);
-   try
-   {
-   	fs.appendFileSync(logfile,data);
-   }
-   catch (e)
-   {
-   	didnt = "happen";
-   }
+   
+   if (logfile) console.log(data);
+  
    buf += data	   
    lh = new Date().getTime()
    if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 

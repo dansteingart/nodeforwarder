@@ -76,10 +76,10 @@ serialPort.on('data', function(data) {
    
    if (logfile) 
    {
-       console.log(data.toString('utf8')); 
+       console.log(data.toString('binary')); 
    }
   
-   buf += data	   
+   buf += data.toString('binary') 
    lh = new Date().getTime()
    if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
    io.emit('data', data);
@@ -98,7 +98,7 @@ app.get('/write/*',function(req,res){
 	toSend = req.originalUrl.replace("/write/","")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
-	serialPort.write(toSend)
+	serialPort.write(new Buffer(toSend))
 	res.send(toSend)
 });
 
@@ -106,7 +106,7 @@ app.get('/writecf/*',function(req,res){
 	toSend = req.originalUrl.replace("/writecf/","")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
-	serialPort.write(toSend+"\r\n")
+	serialPort.write(new Buffer(toSend+"\r\n"))
 	res.send(toSend)
 });
 
@@ -115,7 +115,7 @@ app.post('/write',function(req,res){
 	toSend = x
 	console.log(toSend)
 	
-	serialPort.write(toSend['payload'])
+	serialPort.write(new Buffer(toSend['payload']))
 	res.send(toSend)
 });
 

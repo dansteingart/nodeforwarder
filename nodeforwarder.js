@@ -82,7 +82,7 @@ serialPort.on('data', function(data) {
    buf += data.toString('binary') 
    lh = new Date().getTime()
    if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
-   io.emit('data', data);
+   io.emit('data', data.toString('utf8');
    
 });
 

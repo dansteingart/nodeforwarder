@@ -59,6 +59,15 @@ serialPort.on("open", function () {
     
 });  
 
+serialPort.on("close", function () { 
+	console.log('closed, reopening');
+    	var serialPort = new SerialPort(sp,
+	{
+  	  baudrate: baud
+	});
+
+}); 
+
 //sleep for 5 seconds for arduino serialport purposes
 for (var i=0; i<3; i++ )
 {

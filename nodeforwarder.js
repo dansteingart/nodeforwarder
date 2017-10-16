@@ -47,10 +47,10 @@ http.listen(hp);
 
 
 var sleep = require("sleep").sleep
-var SerialPort = require("serialport").SerialPort ;
+var SerialPort = require("serialport"); //per ak47 fix
 var serialPort = new SerialPort(sp,
 	{
-  	  baudrate: baud
+  	  baudRate: baud
 	});
 
 

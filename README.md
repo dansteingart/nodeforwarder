@@ -1,7 +1,7 @@
-#Node Forwarder
+# Node Forwarder
 A simple serialport to restful interface
 
-##Overview
+## Overview
 Serial ports, bless their robust and simple yet legacy bound hearts, are one to one. That is, once a program connects to a serial port, without 1337 skills, only one program can attach to it.  This is not inherently good nor bad, it just is. But in certain contexts, it is a less than helpful limitation.  
 
 This is what nodeforwarder aims to alleviate.  
@@ -24,7 +24,7 @@ Of course, if your computadora is attached to the interwebs, your ports will be 
 
 This is also not inherently good or bad, it just is.  
 
-##Required Libraries
+## Required Libraries
 
 These come with the repo, but just in case
 
@@ -35,7 +35,7 @@ These come with the repo, but just in case
 - cors -> `npm install cors`
 - body-parser -> `npm install body-parser`
 
-##Quick Run
+## Quick Run
 In the directory where you placed the files run
 
  `node nodeforwader.js iPORT pPORT SERIALSPEED BUFF`
@@ -60,7 +60,7 @@ phew.  not so quick.  but all you have to write is something like this
 
 `node nodeforwader.js 9000 /dev/ttyUSB0 57600 10000`
 
-##Using the Nodeforwarder
+## Using the Nodeforwarder
 
 Let's say you chose an iPORT of 9000.  On the computer where you started the forwarder you can browse to that page via 
 
@@ -85,7 +85,7 @@ To read what comes back, type
 There is a quick debugging interface at `http://localhost:9000/`
 
 
-##Get URLS
+## Get URLS
 
 - /write/PAYLOAD
   - Writes PAYLOAD to the serialport.  Tries hard to handle what it can, but it's just a url so....
@@ -96,7 +96,7 @@ There is a quick debugging interface at `http://localhost:9000/`
 - /lastreading
   - returns the last time the nodeforwarder received data from the serialport, in unixtime (ms).
 
-##Post URLS
+## Post URLS
 - /write/
  - expects a JSON format with a 'payload' key, something like `{"payload":"take over world"}`, and sends the value (e.g. "take over world") to the serial port
  
@@ -106,7 +106,7 @@ http://HOST:PORT/write/
 ```
 
 
-##Use in a scripting langauge
+## Use in a scripting langauge
 
 Now that the forwarder is set up and you know it's working per above, you can use it in whatever language you want so long as that language can deal with opening and reading from URLs (they _all_ can).  In python this looks like
 
@@ -124,8 +124,8 @@ def writecf(str):
 def read():
     return uo(site+"read/").read()
 
-##your code here
+## your code here
 ```
 
-##Yes
+## Yes
 This is [not the first](http://tinyos.stanford.edu/tinyos-wiki/index.php/Mote-PC_serial_communication_and_SerialForwarder_(TOS_2.1.1_and_later)) and it is not the last, but it's mine and it's the only curl based system that _I_ know of.  So please use it and enjoy it and don't tell me it's not original.  I know it's not, but it works.

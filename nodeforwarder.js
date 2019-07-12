@@ -99,8 +99,10 @@ serialPort.on('data', function(data) {
 app.use(cors())
 
 //Allows us to rip out data?
-app.use(bodyParser());
-
+//app.use(bodyParser()); //Constructor is deprecated 
+//Explicitly setting extended 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
 
 //Write to serial port
 app.get('/write/*',function(req,res){	

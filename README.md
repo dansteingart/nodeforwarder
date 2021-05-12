@@ -26,19 +26,12 @@ This is also not inherently good or bad, it just is.
 
 ## Required Libraries
 
-These come with the repo, but just in case
-
-- serialport -> `npm install serialport`
-- express -> `npm install express`
-- sleep -> `npm install sleep`
-- socket.io -> `npm install socket.io`
-- cors -> `npm install cors`
-- body-parser -> `npm install body-parser`
-
+- Working installation of Node.js and npm on your operating system
+- run 'npm i' in the nodeforwarder folder to install OS-dependent packages
 ## Quick Run
 In the directory where you placed the files run
 
- `node nodeforwader.js iPORT pPORT SERIALSPEED BUFF`
+ `node nodeforwarder.js iPORT pPORT SERIALSPEED BUFF`
 
 where
  - iPORT = the internet port (e.g. localhost:8000 would be 8000).  
@@ -58,7 +51,7 @@ where
 
 phew.  not so quick.  but all you have to write is something like this
 
-`node nodeforwader.js 9000 /dev/ttyUSB0 57600 10000`
+`node nodeforwarder.js 9000 /dev/ttyUSB0 57600 10000`
 
 ## Using the Nodeforwarder
 
@@ -113,7 +106,7 @@ Now that the forwarder is set up and you know it's working per above, you can us
 ```python
 from urllib import urlopen as uo
 
-site = "http://locahost:9000/"
+site = "http://localhost:9000/"
 
 def write(str):
     return uo(site+"write/"+str).read()

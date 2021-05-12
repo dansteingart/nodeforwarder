@@ -19,14 +19,12 @@ what will probably create farts/list of things to deal with later if I need to:
 
 parts = process.argv
 
-if (parts.length < 6)
-{
+if (parts.length < 6) {
 	console.log("usage: node nodeforwader.js [HTTP PORT] [SERIAL PORT] [BAUD] [BUFFER LENGTH] [LOG=YES optional]")
 	process.exit(1);
 }
 
-else
-{
+else {
 	console.log(parts);
 	hp = parts[2]
 	sp = parts[3]
@@ -46,91 +44,90 @@ var cors = require('cors')
 http.listen(hp);
 
 
-var sleep = require("sleep").sleep
 var SerialPort = require("serialport"); //per ak47 fix
 var serialPort = new SerialPort(sp,
 	{
-  	  baudRate: baud
+		baudRate: baud
 	});
 
 
-serialPort.on("open", function () { 
+serialPort.on("open", function () {
 	console.log('open');
-    
-});  
 
-serialPort.on("close", function () { 
+});
+
+serialPort.on("close", function () {
 	console.log('closed, reopening');
-    	var serialPort = new SerialPort(sp,
-	{
-  	  baudrate: baud
-	});
+	var serialPort = new SerialPort(sp,
+		{
+			baudrate: baud
+		});
 
-}); 
+});
 
-//sleep for 5 seconds for arduino serialport purposes
-for (var i=0; i<3; i++ )
-{
-	console.log(i);
-	sleep(1); 
-}
 
+
+//sleep for 3 seconds for arduino serialport purposes
+console.log('Sleeping three seconds for microcontroller...')
+var waitTill = new Date(new Date().getTime() + 3000);
+while(waitTill > new Date()){}
 
 //On Data fill a circular buf of the specified length
 buf = ""
 
 //last heard
 var lh = 0;
-serialPort.on('data', function(data) {
-   
-   if (logfile) 
-   {
-       console.log(data.toString('binary')); 
-   }
-  
-   buf += data.toString('binary') 
-   lh = new Date().getTime()
-   if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
-   io.emit('data', data.toString('utf8'));
-   
+serialPort.on('data', function (data) {
+	data = data.toString('binary')
+	lh = new Date().getTime()
+	data = lh/1000 + ',' + data
+	if (logfile) {
+		console.log(data);
+	}
+
+	buf += data.toString('binary')
+	if (buf.length > blen) buf = buf.substr(buf.length - blen, buf.length)
+	io.emit('data', data.toString('utf8'));
+
 });
 
 //Enable Cross Site Scripting
 app.use(cors())
 
 //Allows us to rip out data?
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 
 //Write to serial port
-app.get('/write/*',function(req,res){	
-	toSend = req.originalUrl.replace("/write/","")
+app.get('/write/*', function (req, res) {
+	toSend = req.originalUrl.replace("/write/", "")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
 	serialPort.write(new Buffer(toSend))
 	res.send(toSend)
 });
 
-app.get('/writecf/*',function(req,res){	
-	toSend = req.originalUrl.replace("/writecf/","")
+app.get('/writecf/*', function (req, res) {
+	toSend = req.originalUrl.replace("/writecf/", "")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
-	serialPort.write(new Buffer(toSend+"\r\n"))
+	serialPort.write(new Buffer(toSend + "\r\n"))
 	res.send(toSend)
 });
 
-app.post('/write',function(req,res){	
+app.post('/write', function (req, res) {
 	x = req.body
 	toSend = x
 	console.log(toSend)
-	
+
 	serialPort.write(new Buffer(toSend['payload']))
 	res.send(toSend)
 });
 
 
 //Show Last Updated
-app.get('/lastread/',function(req,res){	
+app.get('/lastread/', function (req, res) {
 	lhs = lh.toString();
 	console.log(lhs)
 	res.send(lhs)
@@ -138,27 +135,27 @@ app.get('/lastread/',function(req,res){
 
 
 //read buffer
-app.get('/read/', function(req, res){
+app.get('/read/', function (req, res) {
 	res.send(buf)
 });
 
 
 //weak interface
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/readout.html');
+app.get('/', function (req, res) {
+	res.sendFile(__dirname + '/readout.html');
 });
 
 
-app.get('/readout/', function(req, res){
-    res.sendFile(__dirname + '/readout.html');
+app.get('/readout/', function (req, res) {
+	res.sendFile(__dirname + '/readout.html');
 });
 
 //sockets
-io.on('connection', function(socket){
-  io.emit('data',buf)
-  socket.on('input', function(msg){
-   //console.log('message: ' + msg);
-	serialPort.write(msg+"\r\n")
-	
-  });
+io.on('connection', function (socket) {
+	io.emit('data', buf)
+	socket.on('input', function (msg) {
+		//console.log('message: ' + msg);
+		serialPort.write(msg + "\r\n")
+
+	});
 });

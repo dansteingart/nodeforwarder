@@ -4,11 +4,17 @@
     <title>listen now!</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
+      body { font: 13px Helvetica, Arial; background-color: black; }
       form { background: #000; padding: 3px; position: fixed; top: 0; width: 100%; }
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
       form button { width: 9%; background: silver; border: none; padding: 10px; }
-	  .messages{margin-top:50px}
+	    .messages{
+        margin-top:50px;
+        font-family: 'Monaco';
+        white-space: pre-line; 
+        background-color: black;
+        color: green;
+      }
     </style>
   </head>
   <body>
@@ -38,29 +44,35 @@
       return false;
     });
     
+  /*
+    The goal is to display a window sized history of what the serial port is reporting, 
+    regardless of what line breaks are flowing through. We do this by 
+    - buffering msg into msg_wait
+    - defining a maximum number of lines based on window height
+    - if we're not getting line breaks, buffer until max_len and cut it there
+    - display the string on update
 
-  msg_wait = ""
-  msg_buf = []
+  */
+  msg_wait = "" //msg buffer
+  max_len = 10000; //fall back if serial isn't spitting out line breaks
+  h_ratio = 85/1500; //assume 85 lines per 1500 pixels of text
   socket.on('data', function(msg){
-    msg_wait+=msg
-    if(msg_wait.search("\r\n") > -1)
+    max_lines = Math.floor(window.innerHeight * h_ratio)-5; //the -5 keeps things neat when window height is small
+    msg_wait += msg //buffer
+    $('#messages').html(msg_wait); //display
+
+    //filter accordingly
+    if ((msg_wait.match(/\n/g)||[]).length > max_lines) 
     {
-      msg_buf[msg_buf.length]= msg_wait
-      msg_wait = ""
-      str_out = ""
-      for (i in msg_buf)
-      {
-        str_out += msg_buf[i]+"<br>"
-      }
-      $('#messages').html(str_out);
-
-      if (msg_buf.length > 30) msg_buf.shift()
-
+      while ((msg_wait.match(/\n/g)||[]).length > max_lines) msg_wait = msg_wait.substr(msg_wait.search("\n")+1)
+    }
+    else if (msg_wait.length > max_len)
+    {
+      msg_wait = msg_wait.substr(msg_wait.length-max_len)
     }
 
 	});
   
-
 
   </script>
   </body>

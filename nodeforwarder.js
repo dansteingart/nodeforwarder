@@ -15,6 +15,13 @@ what will probably create farts/list of things to deal with later if I need to:
 - returning characters that html has issues with
 - spaces in the url
 
+TODO as of 2021-10-16:
+
+[] Update Parser and buffer handling
+[] POST calls
+[] Other stuff
+
+
 */
 
 parts = process.argv

@@ -17,8 +17,8 @@
     </form>    
 	<div id="messages" class="messages"></div>
 
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
 	function ab2str(buf) {
 	  str = String.fromCharCode.apply(null, new Uint8Array(buf));
@@ -27,21 +27,41 @@
 	  return str
 	}
 	
-	$.get( "read/", function( data ) {
-	  $( "#messages").html(data.replace(/\n/g,'<br>') );
-	});
+	//$.get( "read/", function( data ) {$( "#messages").html(data.replace(/\n/g,'<br>') );});
 	
-      var socket = io();
-      $('form').submit(function(){
-        socket.emit('input', $('#m').val());
-		console.log($('#m').val())
-        $('#m').val('');
-        return false;
-      });
-      socket.on('data', function(msg){
-        $('#messages').append(ab2str(msg));
-	    $("body").animate({ scrollTop: $("body").height() }, "fast");
+  var socket = io();
+  $('form').submit(function()
+    {
+      socket.emit('input', $('#m').val()); 
+      console.log($('#m').val()) 
+      $('#m').val('');
+      return false;
+    });
+    
+
+  msg_wait = ""
+  msg_buf = []
+  socket.on('data', function(msg){
+    msg_wait+=msg
+    if(msg_wait.search("\r\n") > -1)
+    {
+      msg_buf[msg_buf.length]= msg_wait
+      msg_wait = ""
+      str_out = ""
+      for (i in msg_buf)
+      {
+        str_out += msg_buf[i]+"<br>"
+      }
+      $('#messages').html(str_out);
+
+      if (msg_buf.length > 30) msg_buf.shift()
+
+    }
+
 	});
-    </script>
+  
+
+
+  </script>
   </body>
 </html>

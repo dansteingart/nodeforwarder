@@ -98,10 +98,10 @@ There is a quick debugging interface at `http://localhost:9000/`
 
 ## Post URLS
 - /write/
- - expects a JSON format with a 'payload' key, something like `{"payload":"take over world"}`, and sends the value (e.g. "take over world") to the serial port
+ - You can use whatever you like here and we'll do our best to get the message _exactly_ as formatted to the device. Want to use ArduinoJson? You can!
  
 ```bash  
-curl -s -H 'Content-Type: application/json' -X POST -d '{"payload":"value"}' \ 
+curl -s -H 'Content-Type: application/json' -X POST -d '{"love":"is_love"}' \ 
 http://HOST:PORT/write/
 ```
 
@@ -111,19 +111,22 @@ http://HOST:PORT/write/
 Now that the forwarder is set up and you know it's working per above, you can use it in whatever language you want so long as that language can deal with opening and reading from URLs (they _all_ can).  In python this looks like
 
 ```python
-from urllib import urlopen as uo
+from requests import urlopen as uo
 
-site = "http://locahost:9000/"
+import requests as r
+from time import time, sleep
 
-def write(str):
-    return uo(site+"write/"+str).read()
 
-def writecf(str):
-    return uo(site+"writecf/"+str).read()
 
-def read():
-    return uo(site+"read/").read()
+data = {'res1':22000}
+r.post("http://localhost:9000/write",data=data) 
 
+
+data = {}
+data['mode'] = "manual"
+data['dac0'] = 3000
+data['dac1'] = 1000
+r.post("http://localhost:9000/write",data=data) 
 ## your code here
 ```
 
@@ -133,4 +136,7 @@ This is [not the first](http://tinyos.stanford.edu/tinyos-wiki/index.php/Mote-PC
 
 ## Updates
 
-- 2021-10-16 Updated to work with Node 16 (some changes to how express and socket.io behave.)
+- 2021-10-16 
+  - Updated to work with Node 16 (some changes to how express and socket.io behave.)
+  - Console actually works 😅
+  - Sorely needed README update

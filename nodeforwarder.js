@@ -17,9 +17,10 @@ what will probably create farts/list of things to deal with later if I need to:
 
 TODO as of 2021-10-16:
 
-[] Update Parser and buffer handling
-[] POST calls
-[] Other stuff
+[x] Update Parser and buffer handling
+[x] POST calls
+[x] check working with python-socketio (big yes!)
+[ ] Add parsing options to inteface?
 
 
 */
@@ -115,7 +116,7 @@ app.get('/write/*',function(req,res){
 	toSend = req.originalUrl.replace("/write/","")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
-	serialPort.write(new Buffer(toSend))
+	serialPort.write(toSend)
 	res.send(toSend)
 });
 
@@ -123,7 +124,7 @@ app.get('/writecf/*',function(req,res){
 	toSend = req.originalUrl.replace("/writecf/","")
 	toSend = decodeURIComponent(toSend);
 	console.log(toSend)
-	serialPort.write(new Buffer(toSend+"\r\n"))
+	serialPort.write(toSend+"\r\n")
 	res.send(toSend)
 });
 
@@ -132,7 +133,7 @@ app.post('/write',function(req,res){
 	toSend = x
 	console.log(toSend)
 	
-	serialPort.write(new Buffer(toSend['payload']))
+	serialPort.write(JSON.stringify(toSend)+"\n")
 	res.send(toSend)
 });
 

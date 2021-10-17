@@ -42,7 +42,7 @@ In the directory where you placed the files run
 
 where
  - `iPORT` = the internet port (e.g. localhost:8000 would be 8000).  
-  - You can make this whatever you want, just make sure there's nothing else trying to run at that port (e.g. pithy, or another forwarder).  If you try to start a forwarder where there's a port in use you'll just get an error, so try another port.  Generally, ports under `1000` are reserved for system use, you can start those but probably have to sudo your way in.  If you don't know what that means don't worry about it
+     - You can make this whatever you want, just make sure there's nothing else trying to run at that port (e.g. pithy, or another forwarder).  If you try to start a forwarder where there's a port in use you'll just get an error, so try another port.  Generally, ports under `1000` are reserved for system use, you can start those but probably have to sudo your way in.  If you don't know what that means don't worry about it
 
 - `pPORT` = the location of the serial port.  
    - on a linux box this looks like `/dev/ttyUSB*`, where the * is a number in the order the devices were plugged in currently.
@@ -94,7 +94,7 @@ To read what comes back, type
 
 ## Post URLS
 - `/write`
- - You can use whatever you like here and we'll do our best to get the message _exactly_ as formatted to the device. Want to use ArduinoJson? You can!
+    - You can use whatever you like here and we'll do our best to get the message _exactly_ as formatted to the device. Want to use ArduinoJson? You can!
  
 ```bash  
 curl -s -H 'Content-Type: application/json' -X POST -d '{"love":"is_love"}' \ 

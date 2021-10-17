@@ -40,10 +40,11 @@ if (parts.length == 7) logfile = true;
 var bodyParser = require('body-parser');
 var app = require('express')();
 var fs = require('fs');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
 var cors = require('cors')
-http.listen(hp);
+const server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
+server.listen(hp);
 
 
 var sleep = require("sleep").sleep
@@ -99,7 +100,7 @@ serialPort.on('data', function(data) {
 app.use(cors())
 
 //Allows us to rip out data?
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({extended:true})); //deprecated not sure what to do here....
 
 
 //Write to serial port

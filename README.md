@@ -2,9 +2,9 @@
 A simple serialport to RESTful interface.
 
 ## Overview
-Serial ports, bless their robust and simple yet legacy bound hearts, are one to one. Once a program connects to a serial port, without 1337 skills, only one program can attach to it.  This is not inherently good nor bad, it just is. But in certain contexts, it is a less than helpful limitation.  
+Serial ports, bless their robust and simple yet legacy bound hearts, are one to one. Once a program connects to a serial port, without 1337 skills, only one program can attach to it.  This is not inherently good nor bad, it just is. 
 
-This is what nodeforwarder aims to alleviate.  
+For debugging hardware, and for having a second input for control loops, making the serial port one-to-many is useful. So let's go.
 
 nodeforwarder connects to your serialport to an http port of your specification, and allows you to read from the serial by points your browser (or better yet cURL like function) to
 

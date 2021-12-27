@@ -50,8 +50,7 @@ var app = require('express')();
 var fs = require('fs');
 var cors = require('cors')
 const server = require('http').createServer(app);
-var io = require('socket.io')(server);
-
+var io = require('socket.io')(server,{cors:{methods: ["GET", "POST"]}});
 server.listen(hp);
 
 
@@ -128,12 +127,12 @@ app.get('/writecf/*',function(req,res){
 	res.send(toSend)
 });
 
-app.post('/write',function(req,res){	
+//#expects data to be in {'payload':data} format
+app.post('/write',function(req,res){    
 	x = req.body
-	toSend = x
+	toSend = x['payload']
 	console.log(toSend)
-	
-	serialPort.write(JSON.stringify(toSend)+"\n")
+	serialPort.write(toSend)
 	res.send(toSend)
 });
 

@@ -25,9 +25,7 @@ Of course, if your computadora is attached to the interwebs, your ports will be 
 This is also not inherently good or bad, it just is.  
 
 ## Required Libraries
-
-These come with the repo, but just in case
-
+Just `npm i`, but FYI
 - serialport -> `npm install serialport`
 - express -> `npm install express`
 - sleep -> `npm install sleep`
@@ -37,13 +35,13 @@ These come with the repo, but just in case
 
 ## Quick Run
 In the directory where you placed the files run
-
- `node nodeforwader.js iPORT pPORT SERIALSPEED BUFF`
+- on first run `npm i`
+- then and thereafter `node nodeforwader.js iPORT pPORT SERIALSPEED BUFF`
 
 where
  - `iPORT` = the internet port (e.g. localhost:8000 would be 8000).  
      - You can make this whatever you want, just make sure there's nothing else trying to run at that port (e.g. pithy, or another forwarder).  If you try to start a forwarder where there's a port in use you'll just get an error, so try another port.  Generally, ports under `1000` are reserved for system use, you can start those but probably have to sudo your way in.  If you don't know what that means don't worry about it
-
+    
 - `pPORT` = the location of the serial port.  
    - on a linux box this looks like `/dev/ttyUSB*`, where the * is a number in the order the devices were plugged in currently.
    - on a mac this looks like `/dev/tty.usb*` is typically a generated string depending on _what_ USB port you plugged into.  Note that it may not look like `/dev/tty.usb*`, but use your Princeton brain and play with the problem.
@@ -97,7 +95,7 @@ To read what comes back, type
     - You can use whatever you like here and we'll do our best to get the message _exactly_ as formatted to the device. Want to use ArduinoJson? You can!
  
 ```bash  
-curl -s -H 'Content-Type: application/json' -X POST -d '{"love":"is_love"}' \ 
+curl -s -H 'Content-Type: application/json' -X POST -d '{"payload":"love_is_love"}' \ 
 http://HOST:PORT/write/
 ```
 
@@ -143,26 +141,34 @@ import requests as r
 from time import time, sleep
 
 
-
+out = {}
 data = {'res1':22000}
-r.post("http://localhost:9000/write",data=data) 
+out = {'payload'=data}
+r.post("http://localhost:9000/write",data=out) 
 
 
+out = {}
 data = {}
 data['mode'] = "manual"
 data['dac0'] = 3000
 data['dac1'] = 1000
-r.post("http://localhost:9000/write",data=data) 
+out = {'payload'=data}
+
+r.post("http://localhost:9000/write",data=out) 
 ## your code here
 ```
 
 ## Updates
+
+- 2021-12-27
+  - `POST` calls now behaving (I hope)
+  - Update README
 
 - 2021-10-17
   - Improved display in `readout.html`
   - Update README
 
 - 2021-10-16 
-  - Updated to work with Node 16 (some changes to how express and socket.io behave.)
+  - Updated to work with Node 16 (some changes to how express and socket.io behave)
   - Console actually works 😅
-  - Sorely needed README update
+  - Sorely needed `README` update

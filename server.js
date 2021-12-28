@@ -1,6 +1,6 @@
 /* 
-NodeForwader: an serial to http proxy driven by ghetto get calls
-requirements 
+EnderScope (based on NodeForwader): an serial to http proxy driven by ghetto get calls
+requirements with some ender3 control hacks
    -- serialport -> npm install serialport
    -- express -> npm install express
    -- sleep -> npm install sleep
@@ -20,7 +20,8 @@ TODO as of 2021-10-16:
 [x] Update Parser and buffer handling
 [x] POST calls
 [x] check working with python-socketio (big yes!)
-[ ] Add parsing options to inteface?
+[ ] v4l2 controls?
+
 
 
 */
@@ -45,12 +46,17 @@ else
 var logfile = false;
 if (parts.length == 7) logfile = true;
 
+const {exec} = require('child_process');
+
 var bodyParser = require('body-parser');
-var app = require('express')();
+
+var express = require('express');
+var app = express();
 var fs = require('fs');
 var cors = require('cors')
 const server = require('http').createServer(app);
 var io = require('socket.io')(server,{cors:{methods: ["GET", "POST"]}});
+
 server.listen(hp);
 
 
@@ -106,6 +112,10 @@ serialPort.on('data', function(data) {
 //Enable Cross Site Scripting
 app.use(cors())
 
+app.use('/static',express.static('static'))
+//app.use(express.static('files'))
+
+
 //Allows us to rip out data?
 app.use(bodyParser.urlencoded({extended:true})); //deprecated not sure what to do here....
 
@@ -126,6 +136,16 @@ app.get('/writecf/*',function(req,res){
 	serialPort.write(toSend+"\r\n")
 	res.send(toSend)
 });
+
+//supppppeeer dangerouns but I'm being lazy now
+app.post("/exec",function(req,res){    
+	x = req.body
+	toExec = x['payload']
+	console.log(toSend)
+	exec(toExec, (error, stdout, stderr) => {io.emit('exec',stdout)})
+	res.send({'status':'doing it'})
+});
+
 
 //#expects data to be in {'payload':data} format
 app.post('/write',function(req,res){    
@@ -151,13 +171,16 @@ app.get('/read/', function(req, res){
 });
 
 
+
 //weak interface
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/readout.html');
+    res.sendFile(__dirname + '/index.html');
 });
 
+setInterval(()=>{serialPort.write("M114\r\n")},250)
 
-app.get('/readout/', function(req, res){
+
+app.get('/serial', function(req, res){
     res.sendFile(__dirname + '/readout.html');
 });
 

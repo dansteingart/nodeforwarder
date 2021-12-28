@@ -1,0 +1,103 @@
+<html>
+    <head>
+        <script src="/static/js/jquery-3.6.0.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <style>
+            body{font-family: Helvetica,Arial, sans-serif;}
+            img{width:100%}
+            input{outline: none; border:none;border-bottom: 1px solid black;text-align: right;width:50px;}
+            .img{float:right;width:75%}
+        </style>
+    </head>
+    <body>
+        <h1> Controltron 5000</h1>
+        <div id="image" class="img"></div>
+
+        <table>
+            <tr><td>move x/y</td><td><input id='movexy' value=1> </input>mm</td></tr>
+            <tr><td>move z</td><td><input id='movez' value=0.1> </input>mm</td></tr>
+            <tr><td>X</td><td><input id='posX' value=1 readonly> </input>mm</td></tr>
+            <tr><td>Y</td><td><input id='posY' value=1 readonly> </input>mm</td></tr>
+            <tr><td>Z</td><td><input id='posZ' value=1 readonly> </input>mm</td></tr>
+        </table>
+
+        <div id = "execer">
+            <input id="exec_in" style="width:200px;text-align:left;"></input><button id="exec_send">Send</button>
+            <div id="exec_out"></div>
+        </div>
+    
+    <script>
+            surl = `http://${window.location.hostname}:${window.location.port}`
+            curl = `http://${window.location.hostname}:8181`
+
+
+            poslog = ""
+            var socket = io();
+            socket.on('data', (msg) => {
+                poslog += msg
+                pat = /(?=X)(.*?)(?=Count)/g
+                last_pos = [...poslog.matchAll(pat)]
+                if (last_pos.length > 0)
+                {
+                    parse_position(last_pos[last_pos.length-1][0])
+                    poslog="";
+                }
+            })
+            socket.on('exec',(msg) =>{$("#exec_out").html(msg)});
+ 
+            function parse_position(str)
+            {
+                parts = str.trim().split(" ")
+                obj = {}
+                for (p in parts) obj[parts[p].split(":")[0]] = parts[p].split(":")[1]
+                $("#posX").val(obj['X']);
+                $("#posY").val(obj['Y']);
+                $("#posZ").val(obj['Z']);
+                return obj
+
+            }
+
+            $("#exec_send").click(
+                ()=>{$.post(`${surl}/exec`,data={'payload':$("#exec_in").val()})}
+            )
+ 
+            function move(x,y,z)
+            {
+                out = `G0 F2000 X${x} Y${y} Z${z}`
+                $.post(`${surl}/write`,data={'payload':`${out}\n`})
+            }
+
+            function get_position(){$.post(`${surl}/write`,data={'payload':'M114\n'})}
+            function steppers_off(){$.get(`${surl}/writecf/M18 X Y Z`)}
+
+
+            $(window).keydown((e)=>{
+                zz = parseFloat($("#movez").val())
+                xy = parseFloat($("#movexy").val())
+
+                if ($("input").is(":focus") == false)
+                {
+                    switch(e.originalEvent.keyCode)
+                    {
+                        case 37: move(-1*xy,0,0); break;
+                        case 39: move(1*xy,0,0);break;
+                        case 38: move(0,1*xy,0);break;
+                        case 40: move(0,-1*xy,0);break;
+                        case 87: move(0,0,zz);break;
+                        case 83: move(0,0,-1*zz);break;
+                        case 77: get_position();break;
+                        case 79: steppers_off();break;
+                    }
+                }
+
+            })
+
+            $("#image").html(`<img src="${curl}/.?action=stream">`)
+
+            
+
+        </script>
+
+    </body>
+
+</html>

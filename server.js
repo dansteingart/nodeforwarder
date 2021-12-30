@@ -68,11 +68,18 @@ var serialPort = new SerialPort(sp,
 	});
 
 
-serialPort.on("open", function () { console.log('open');});  
+serialPort.on("open", function () { 
+	console.log('open');
+    
+});  
 
 serialPort.on("close", function () { 
 	console.log('closed, reopening');
-    	var serialPort = new SerialPort(sp,{baudrate: baud});
+    	var serialPort = new SerialPort(sp,
+	{
+  	  baudrate: baud
+	});
+
 }); 
 
 //sleep for 5 seconds for arduino serialport purposes
@@ -89,7 +96,12 @@ buf = ""
 //last heard
 var lh = 0;
 serialPort.on('data', function(data) {
-   if (logfile) {console.log(data.toString('binary')); }
+   
+   if (logfile) 
+   {
+       console.log(data.toString('binary')); 
+   }
+  
    buf += data.toString('binary') 
    lh = new Date().getTime()
    if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
@@ -125,21 +137,14 @@ app.get('/writecf/*',function(req,res){
 	res.send(toSend)
 });
 
-//supppppeeer dangerous but I'm being lazy now
+//supppppeeer dangerouns but I'm being lazy now
 app.post("/exec",function(req,res){    
 	x = req.body
 	toExec = x['payload']
-	exec(toExec, (error, stdout, stderr) => {io.emit('exec',stdout+"|"+stderr)})
+	console.log(toSend)
+	exec(toExec, (error, stdout, stderr) => {io.emit('exec',stdout)})
 	res.send({'status':'doing it'})
 });
-
-app.post("/run",function(req,res){    
-	x = req.body
-	toExec = x['payload']
-	exec(toExec, (error, stdout, stderr) => {res.send({'status':'success','stdout':stdout,'stderr':stderr})})
-	
-});
-
 
 
 //#expects data to be in {'payload':data} format
@@ -188,6 +193,3 @@ io.on('connection', function(socket){
 	
   });
 });
-
-// on load
-//turn off autoexposure

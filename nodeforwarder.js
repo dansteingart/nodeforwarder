@@ -106,8 +106,9 @@ serialPort.on('data', function(data) {
 //Enable Cross Site Scripting
 app.use(cors())
 
-//Allows us to rip out data?
-app.use(bodyParser.urlencoded({extended:true})); //deprecated not sure what to do here....
+//Allows us to rip out data
+app.use(bodyParser.urlencoded({extended:true})); //post forms
+app.use(bodyParser.json()) // json forms (e.g. axios)
 
 
 //Write to serial port

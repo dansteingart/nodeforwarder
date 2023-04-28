@@ -48,10 +48,10 @@ where
    - on a Windows box this will be `COMX`, where X is again the order the device was plugged in on that computer.  Note that this is _persistent_, so if something is `COM4` it is always `COM4` 
 
 - `SERIALSPEED` = the baud rate for the device on the serial port.  
-   - If you coded it yourself in arduino, it's the same as `Serial.begin(SERIALSPEED)`, otherwise it's either settable according to the manufacturer's instructions or fixed.  Good guesses are already `9600` or `57600`.
+   - If you coded it yourself in arduino, it's the same as `Serial.begin(SERIALSPEED)`, otherwise it is according to the manufacturer's instructions.  Good guesses are`9600`, `57600` and `115200`.
 
-   - `BUFF` = the number of characters to buffer from the serial port
-   - `10000`  is typically a safe values
+- `BUFF` = the number of characters to buffer from the serial port
+   - `10000`  is typically a safe value
    - **NB**: This buffer lets data persist, but it does not tell you whether data is stale or not, e.g. the system can get into places where the serial port device bonks but the forwarder doesn't crash, and when you read data you'll always see the last message passed.  At some point I'll figure out a simple "last message received" check.
 
 phew.  not so quick.  but all you have to write is something like this
@@ -130,7 +130,7 @@ sio.wait()
 
 ```
 
-## Use in a scripting language
+## API, sorta
 
 Now that the forwarder is set up and you know it's working per above, you can use it in whatever language you want so long as that language can deal with opening and reading from URLs (they _all_ can).  In python this looks like
 

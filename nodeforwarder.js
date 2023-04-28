@@ -46,7 +46,8 @@ var logfile = false;
 if (parts.length == 7) logfile = true;
 
 var bodyParser = require('body-parser');
-var app = require('express')();
+var express = require('express')
+var app = express();
 var fs = require('fs');
 var cors = require('cors')
 const server = require('http').createServer(app);
@@ -105,6 +106,7 @@ serialPort.on('data', function(data) {
 
 //Enable Cross Site Scripting
 app.use(cors())
+app.use('/static',express.static('static'))
 
 //Allows us to rip out data
 app.use(bodyParser.urlencoded({extended:true})); //post forms

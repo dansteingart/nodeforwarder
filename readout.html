@@ -3,11 +3,11 @@
   <head>
     <title>now, listen!</title>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      * { margin: 10; padding: 10; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; background-color: black; }
       form { background: #000; padding: 3px; position: fixed; top: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: silver; border: none; padding: 10px; }
+      form input { border: 0; padding: 0px; width: 90%; margin-right: .5%;  }
+      form button { width: 9%; background: rgb(148, 186, 131); border: none; padding: 5px; height:30px; color:darkgreen}
 	    .messages{
         margin-top:50px;
         font-family: 'Monaco';
@@ -15,16 +15,18 @@
         background-color: black;
         color: green;
       }
+      input {height: 30px; background-color: darkgreen; color: lightgreen;outline: none; margin: 10; }
+      
     </style>
   </head>
   <body>
-    <form action="">
-      <input id="m" autocomplete="on" /><button>Send</button>
+    <form autocomplete="on" action="">
+      <input id="m"  /><button>Send</button>
     </form>    
 	<div id="messages" class="messages"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="/static/jquery.js"></script>
     <script>
 	function ab2str(buf) {
 	  str = String.fromCharCode.apply(null, new Uint8Array(buf));
@@ -39,8 +41,10 @@
   $('form').submit(function()
     {
       socket.emit('input', $('#m').val()); 
+      localhist.unshift( $('#m').val())
       console.log($('#m').val()) 
       $('#m').val('');
+      mv = -1;
       return false;
     });
     
@@ -53,6 +57,8 @@
     - display the string on update
   */
   msg_wait = "" //msg buffer
+  localhist = []
+
   max_len = 10000; //fall back if serial isn't spitting out line breaks
   h_ratio = 85/1500; //assume 85 lines per 1500 pixels of text
   socket.on('data', function(msg){
@@ -72,6 +78,25 @@
 
 	});
   
+
+  mv = 0;
+
+  $( "#m" ).on( "keydown", (data)=>{
+    ev = data['originalEvent']['code']
+    if (ev == "ArrowUp") 
+    { 
+      mv = mv+1;
+      if (mv >= localhist.length) mv = 0;
+      $( "#m" ).val(localhist[mv])
+    }
+    if (ev == "ArrowDown")
+    {
+      mv = mv-1
+      if (mv < 0) mv = localhist.length-1;
+      $( "#m" ).val(localhist[mv])
+    }
+    console.log(mv)
+    })
 
   </script>
   </body>

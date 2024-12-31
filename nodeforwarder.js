@@ -54,8 +54,13 @@ const server = require('http').createServer(app);
 var io = require('socket.io')(server,{cors:{methods: ["GET", "POST"]}});
 server.listen(hp);
 
+function msleep(n) {
+	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+  }
+  function sleep(n) {
+	msleep(n*1000);
+  }
 
-var sleep = require("sleep").sleep
 var SerialPort = require("serialport"); //per ak47 fix
 var serialPort = new SerialPort(sp,
 	{
@@ -77,7 +82,7 @@ serialPort.on("close", function () {
 
 }); 
 
-//sleep for 5 seconds for arduino serialport purposes
+//sleep for 3 seconds for arduino serialport purposes
 for (var i=0; i<3; i++ )
 {
 	console.log(i);

@@ -31,7 +31,7 @@
 <tr><td><button id="connect">connect</button></td><td><button id="disconnect">disconnect</button></td></tr>
 </table>
 <script>
-    $.get("/list_port",(ports)=>{ports.forEach(port => {$("#ports").append(`<option value="${port.path}">${port.path}</option>`);});})
+    $.get("/list_ports",(ports)=>{ports.forEach(port => {$("#ports").append(`<option value="${port.path}">${port.path}</option>`);});})
     $("#connect").click(()=>{$.post("/reconnect",{'sp':$("#ports").val(),'baud':$("#baud").val()})})
     $("#disconnect").click(()=>{$.get("/disconnect");});
 </script>

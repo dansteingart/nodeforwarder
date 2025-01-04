@@ -158,7 +158,7 @@ app.get('/disconnect', async (req, res) => {try{serialPort.close()} catch(e){con
 
 app.post('/reconnect',async (req, res) => {x=req.body;initializeSerialPort(x['sp'],parseInt(['baud'])); res.send("foo") })
   
-app.get("/list_port", async(req,res)=>{res.send(await SerialPort.list())});
+app.get("/list_ports", async(req,res)=>{res.send(await SerialPort.list())});
 
 app.get('/writecf/*',function(req,res){	
 	toSend = req.originalUrl.replace("/writecf/","")

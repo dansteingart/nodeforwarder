@@ -5,7 +5,7 @@
     <style>
       * { margin: 10; padding: 10; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; background-color: black; }
-      form { background: #000; padding: 3px; position: fixed; top: 0; width: 100%; }
+      form { background: #000; padding: 3px; position: fixed; top: 0; width: 90%; }
       form input { border: 0; padding: 0px; width: 90%; margin-right: .5%;  }
       form button { width: 9%; background: rgb(148, 186, 131); border: none; padding: 5px; height:30px; color:darkgreen}
 	    .messages{
@@ -16,10 +16,38 @@
         color: green;
       }
       input {height: 30px; background-color: darkgreen; color: lightgreen;outline: none; margin: 10; }
-      
+      #growing-div {
+            position: fixed;
+            top: 200;
+            left: 0;
+            height: 100%;
+            width: 0; /* Start with 0 width */
+            max-width: 200px; /* Ensure it doesn’t grow beyond 200px */
+            background-color: rgba(0,0,0,.7);
+            color: green;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        #sliding-div.active {
+            right: 0; /* Slide into view */
+        }
+        input {height: 30px; background-color: darkgreen; color: lightgreen; border: 0; outline: none; margin: 10; }
+        button { width: 50%; background: rgb(148, 186, 131); border: none; padding: 5px; height:30px; color:darkgreen}
+        select {height: 30px; background-color: darkgreen; color: lightgreen; border: 0; outline: none; margin: 10; padding:0;}
+
     </style>
   </head>
   <body>
+    <div id="growing-div">
+
+        <select id="ports"></select> port<br>
+        <input id="baud"/>baud<br>
+        <button id="connect">connect</button><br>
+        <button id="disconnect">disconnect</button>
+
+    </div>
+
     <form autocomplete="on" action="">
       <input id="m"  /><button>Send</button>
     </form>    
@@ -28,6 +56,11 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/static/jquery.js"></script>
     <script>
+
+    $.get("/list_ports",(ports)=>{ports.forEach(port => {$("#ports").append(`<option value="${port.path}">${port.path}</option>`);});})
+    $("#connect").click(()=>{$.post("/reconnect",{'sp':$("#ports").val(),'baud':$("#baud").val()})})
+    $("#disconnect").click(()=>{$.get("/disconnect");});
+
 	function ab2str(buf) {
 	  str = String.fromCharCode.apply(null, new Uint8Array(buf));
 	  str = str.replace(/\n/g, '<br>');
@@ -80,7 +113,18 @@
   
 
   mv = 0;
-
+  fart = undefined
+  connectconsole = false
+  $(window).on("keydown",(data)=>{
+    fart =data
+    console.log(data)
+    if (data['originalEvent']['code'] == "F1")
+    {
+       if (!connectconsole) $('#growing-div').animate({ width: '200px' }, 50);
+       else $('#growing-div').animate({ width: '0px' }, 50);
+       connectconsole = !connectconsole;
+    }
+  })
   $( "#m" ).on( "keydown", (data)=>{
     ev = data['originalEvent']['code']
     if (ev == "ArrowUp") 

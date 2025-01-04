@@ -1,0 +1,42 @@
+<html>
+<head>
+    <style>
+        * { margin: 10; padding: 10; box-sizing: border-box; }
+        body { font: 13px Helvetica, Arial; background-color: black; color:green }
+        form { background: #000; padding: 3px; position: fixed; top: 0; width: 100%; }
+        form input { border: 0; padding: 0px; width: 90%; margin-right: .5%;  }
+        form button { width: 9%; background: rgb(148, 186, 131); border: none; padding: 5px; height:30px; color:darkgreen}
+          .messages{
+          margin-top:50px;
+          font-family: 'Monaco';
+          white-space: pre-line; 
+          background-color: black;
+          color: green;
+        }
+
+        input {height: 30px; background-color: darkgreen; color: lightgreen; border: 0; outline: none; margin: 10; }
+        button { width: 100%; background: rgb(148, 186, 131); border: none; padding: 5px; height:30px; color:darkgreen}
+        select {height: 30px; background-color: darkgreen; color: lightgreen; border: 0; outline: none; margin: 10; padding:0;}
+
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/static/jquery.js"></script>
+  
+</head>
+<body>
+
+<table>
+<tr><td>serialport                           </td><td width=200><select id="ports"></select></td></tr>
+<tr><td>baud                                 </td><td width=200><input id="baud"/></td></tr>
+<tr><td><button id="connect">connect</button></td><td><button id="disconnect">disconnect</button></td></tr>
+</table>
+<script>
+    $.get("/list_port",(ports)=>{ports.forEach(port => {$("#ports").append(`<option value="${port.path}">${port.path}</option>`);});})
+    $("#connect").click(()=>{$.post("/reconnect",{'sp':$("#ports").val(),'baud':$("#baud").val()})})
+    $("#disconnect").click(()=>{$.get("/disconnect");});
+</script>
+
+
+</body>
+
+</html>

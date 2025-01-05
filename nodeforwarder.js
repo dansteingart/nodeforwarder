@@ -200,12 +200,12 @@ app.get('/read/', function(req, res){
 
 //weak interface
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/readout.html');
+    res.sendFile(__dirname + '/console.html');
 });
 
 
-app.get('/readout/', function(req, res){
-    res.sendFile(__dirname + '/readout.html');
+app.get('/console', function(req, res){
+    res.sendFile(__dirname + '/console.html');
 });
 
 //sockets

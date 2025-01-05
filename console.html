@@ -145,6 +145,20 @@
     console.log(mv)
     })
 
+
+                // Close the div when clicking outside of it
+                $(document).click(function (event) {
+                const $div = $('#growing-div');
+                if (connectconsole && !$(event.target).closest('#growing-div').length) {
+                    $div.animate({ width: '0px' }, 100); // Shrink to 0px
+                    connectconsole = false;
+                }
+            });
+
+            // Prevent clicks inside the div from triggering the close
+            $('#growing-div').click(function (event) {
+                event.stopPropagation();
+            });
   </script>
   </body>
 </html>

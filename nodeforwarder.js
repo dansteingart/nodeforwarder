@@ -132,7 +132,7 @@ buf = ""
 
 //Enable Cross Site Scripting
 app.use(cors())
-app.use('/static',express.static('static'))
+app.use('/static',express.static(__dirname + '/static'))
 
 //Allows us to rip out data
 app.use(bodyParser.urlencoded({extended:true})); //post forms

@@ -2,3 +2,8 @@ node_modules/
 cstart.py
 start.py
 start.sh
+CLAUDE.md
+startnot.py
+startnot.sh
+starttas.sh
+.DS_Store

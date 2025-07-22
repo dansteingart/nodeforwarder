@@ -52,6 +52,8 @@ const server = require('http').createServer(app);
 var io = require('socket.io')(server,{cors:{methods: ["GET", "POST"]}});
 
 const SerialPort = require('serialport');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const sqlite3 = require('sqlite3').verbose();
 
 server.listen(hp);
 
@@ -103,6 +105,14 @@ function msleep(n) {
 		if (buf.length > blen) buf = buf.substr(buf.length-blen,buf.length) 
 		io.emit('data', data.toString('utf8'));
 		
+		// Handle logging if active
+		if (loggingState.isLogging) {
+			const dataString = data.toString('utf8').trim();
+			if (dataString) {
+				handleDataLogging(dataString);
+			}
+		}
+		
 		});
   
 	  serialPort.on('error', (err) => {
@@ -128,6 +138,141 @@ if (sp != undefined) initializeSerialPort(sp,baud)
 
 //On Data fill a circular buf of the specified length
 buf = ""
+
+// Logging state management
+let loggingState = {
+  isLogging: false,
+  type: null, // 'csv' or 'sqlite'
+  filename: null,
+  tableName: null,
+  columns: [],
+  schemaDetected: false,
+  csvWriter: null,
+  db: null,
+  insertStmt: null
+};
+
+// Helper function to detect schema from first data row
+function detectSchema(dataString) {
+  try {
+    const data = JSON.parse(dataString);
+    if (Array.isArray(data)) {
+      return data.map((_, index) => `col_${String(index + 1).padStart(2, '0')}`);
+    } else if (typeof data === 'object') {
+      return Object.keys(data);
+    }
+  } catch (e) {
+    // If not JSON, try to split by common delimiters
+    const parts = dataString.trim().split(/[,\t|;]/);
+    return parts.map((_, index) => `col_${String(index + 1).padStart(2, '0')}`);
+  }
+  return ['col_01']; // Fallback for single value
+}
+
+// Helper function to parse incoming data into object
+function parseDataToObject(dataString, columns) {
+  try {
+    const data = JSON.parse(dataString);
+    if (Array.isArray(data)) {
+      const obj = {};
+      data.forEach((value, index) => {
+        if (index < columns.length) {
+          obj[columns[index]] = value;
+        }
+      });
+      return obj;
+    } else if (typeof data === 'object') {
+      return data;
+    }
+  } catch (e) {
+    // If not JSON, try to split by common delimiters
+    const parts = dataString.trim().split(/[,\t|;]/);
+    const obj = {};
+    parts.forEach((value, index) => {
+      if (index < columns.length) {
+        obj[columns[index]] = value.trim();
+      }
+    });
+    return obj;
+  }
+  // Single value fallback
+  return { [columns[0]]: dataString.trim() };
+}
+
+// Handle data logging to CSV or SQLite
+function handleDataLogging(dataString) {
+  try {
+    // Clean up the data string - remove line breaks and extra whitespace
+    const cleanedData = dataString.replace(/[\r\n]+/g, '').trim();
+    
+    // Skip empty or invalid data
+    if (!cleanedData) return;
+    
+    // Detect schema from first data row if not already detected
+    if (!loggingState.schemaDetected) {
+      if (loggingState.columns.length === 0) {
+        loggingState.columns = detectSchema(cleanedData);
+      }
+      
+      if (loggingState.type === 'csv') {
+        initializeCsvLogging();
+      } else if (loggingState.type === 'sqlite') {
+        initializeSqliteLogging();
+      }
+      
+      loggingState.schemaDetected = true;
+    }
+    
+    // Parse data and log it
+    const dataObj = parseDataToObject(cleanedData, loggingState.columns);
+    
+    if (loggingState.type === 'csv' && loggingState.csvWriter) {
+      loggingState.csvWriter.writeRecords([dataObj]).catch(err => {
+        console.error('CSV write error:', err);
+      });
+    } else if (loggingState.type === 'sqlite' && loggingState.insertStmt) {
+      const values = loggingState.columns.map(col => dataObj[col] || null);
+      loggingState.insertStmt.run(values, (err) => {
+        if (err) console.error('SQLite insert error:', err);
+      });
+    }
+  } catch (error) {
+    console.error('Data logging error:', error);
+  }
+}
+
+// Initialize CSV logging
+function initializeCsvLogging() {
+  const csvHeaders = loggingState.columns.map(col => ({ id: col, title: col }));
+  
+  loggingState.csvWriter = createCsvWriter({
+    path: loggingState.filename,
+    header: csvHeaders,
+    append: fs.existsSync(loggingState.filename)
+  });
+}
+
+// Initialize SQLite logging
+function initializeSqliteLogging() {
+  loggingState.db = new sqlite3.Database(loggingState.filename);
+  
+  // Create table if it doesn't exist
+  const columnDefs = loggingState.columns.map(col => `${col} TEXT`).join(', ');
+  const createTableQuery = `CREATE TABLE IF NOT EXISTS ${loggingState.tableName} (${columnDefs})`;
+  
+  loggingState.db.run(createTableQuery, (err) => {
+    if (err) {
+      console.error('SQLite table creation error:', err);
+      return;
+    }
+    
+    // Prepare insert statement
+    const placeholders = loggingState.columns.map(() => '?').join(', ');
+    const insertQuery = `INSERT INTO ${loggingState.tableName} (${loggingState.columns.join(', ')}) VALUES (${placeholders})`;
+    
+    loggingState.insertStmt = loggingState.db.prepare(insertQuery);
+  });
+}
 
 
 //Enable Cross Site Scripting
@@ -207,6 +352,118 @@ app.get('/', function(req, res){
 app.get('/console', function(req, res){
     res.sendFile(__dirname + '/console.html');
 });
+
+// Start CSV logging
+app.post('/start_csv_log', function(req, res) {
+  try {
+    const { filename, columns } = req.body;
+    
+    if (!filename) {
+      return res.status(400).json({ error: 'Filename is required' });
+    }
+    
+    // Stop any current logging
+    stopLogging();
+    
+    // Initialize CSV logging state
+    loggingState.isLogging = true;
+    loggingState.type = 'csv';
+    loggingState.filename = filename;
+    loggingState.columns = columns || [];
+    loggingState.schemaDetected = false;
+    loggingState.csvWriter = null;
+    
+    console.log(`Started CSV logging to: ${filename}`);
+    res.json({ 
+      success: true, 
+      message: `CSV logging started to ${filename}`,
+      columns: loggingState.columns 
+    });
+  } catch (error) {
+    console.error('Error starting CSV logging:', error);
+    res.status(500).json({ error: 'Failed to start CSV logging' });
+  }
+});
+
+// Start SQLite logging
+app.post('/start_sqlite_log', function(req, res) {
+  try {
+    const { filename, table, columns } = req.body;
+    
+    if (!filename || !table) {
+      return res.status(400).json({ error: 'Filename and table name are required' });
+    }
+    
+    // Stop any current logging
+    stopLogging();
+    
+    // Initialize SQLite logging state
+    loggingState.isLogging = true;
+    loggingState.type = 'sqlite';
+    loggingState.filename = filename;
+    loggingState.tableName = table;
+    loggingState.columns = columns || [];
+    loggingState.schemaDetected = false;
+    loggingState.db = null;
+    loggingState.insertStmt = null;
+    
+    console.log(`Started SQLite logging to: ${filename}, table: ${table}`);
+    res.json({ 
+      success: true, 
+      message: `SQLite logging started to ${filename}, table: ${table}`,
+      columns: loggingState.columns 
+    });
+  } catch (error) {
+    console.error('Error starting SQLite logging:', error);
+    res.status(500).json({ error: 'Failed to start SQLite logging' });
+  }
+});
+
+// Stop logging
+app.post('/stop_log', function(req, res) {
+  try {
+    stopLogging();
+    res.json({ success: true, message: 'Logging stopped' });
+  } catch (error) {
+    console.error('Error stopping logging:', error);
+    res.status(500).json({ error: 'Failed to stop logging' });
+  }
+});
+
+// Get logging status
+app.get('/log_status', function(req, res) {
+  res.json({
+    isLogging: loggingState.isLogging,
+    type: loggingState.type,
+    filename: loggingState.filename,
+    tableName: loggingState.tableName,
+    columns: loggingState.columns,
+    schemaDetected: loggingState.schemaDetected
+  });
+});
+
+// Helper function to stop logging and clean up resources
+function stopLogging() {
+  if (loggingState.insertStmt) {
+    loggingState.insertStmt.finalize();
+    loggingState.insertStmt = null;
+  }
+  
+  if (loggingState.db) {
+    loggingState.db.close();
+    loggingState.db = null;
+  }
+  
+  loggingState.isLogging = false;
+  loggingState.type = null;
+  loggingState.filename = null;
+  loggingState.tableName = null;
+  loggingState.columns = [];
+  loggingState.schemaDetected = false;
+  loggingState.csvWriter = null;
+  
+  console.log('Logging stopped and resources cleaned up');
+}
 
 //sockets
 io.on('connection', function(socket){
